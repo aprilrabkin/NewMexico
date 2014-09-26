@@ -18,7 +18,7 @@ class Scraper
 		end.reject do |line|
 			line =~ /place:/
 		end.map do |line|
-		  line.gsub(/,.+/, '').gsub(/\n/, '')
+			line.gsub(/,.+/, '').gsub(/\n/, '')
 		end 
 	end 
 
@@ -33,7 +33,21 @@ class Scraper
 			county_name = noko.css('h2')[i].text
 			office = county_name + " County Clerk"
 			phone = noko.css('h2')[i].next_element.text.scan(/\(\d{3}\)\s\d{3}-\d{4}/).first
-			website = noko.css('h2')[i].next_element.css('a').text || ""
+
+
+			link = noko.css('h2')[i].next_element.css('a')
+		#	binding.pry
+		
+			if link.first
+				if link.first.attributes['href'] 
+					unless link.first.attributes['href'].value.include?("@")
+						website = link.first.attributes['href'].value
+					end
+				end
+			else
+				website = ""
+			end
+
 			id = @ids.find do |i| 
 				name = county_name.rstrip.gsub(" County", "").gsub(" ", "_")
 				i =~ /county:#{name}/i
